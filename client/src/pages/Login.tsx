@@ -11,15 +11,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoginInput, SignupInput } from "../types/auth";
+import { authAPI } from "@/app/features/api/authAPI";
+import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { toast } from "sonner";
+import { setUser } from "@/app/features/authSlice";
+import axios from "axios";
 
-interface LoginInput {
-  email: string;
-  password: string;
-}
-
-interface SignupInput extends LoginInput {
-  username: string;
-}
+type TabValue = "login" | "register";
 
 export function Login() {
   const [loginInput, setLoginInput] = useState<LoginInput>({
@@ -32,10 +33,15 @@ export function Login() {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabValue>("register");
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "login" | "signup"
+    type: TabValue
   ) => {
     const { name, value } = e.target;
 
@@ -44,7 +50,7 @@ export function Login() {
         ...loginInput,
         [name]: value,
       });
-    } else if (type === "signup") {
+    } else if (type === "register") {
       setSignupInput({
         ...signupInput,
         [name]: value,
@@ -52,21 +58,45 @@ export function Login() {
     }
   };
 
-  const handleSubmit = (
+  const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
     type: "login" | "signup"
   ) => {
     e.preventDefault();
-    if (type === "login") {
-      console.log("Login Input:", loginInput);
-    } else if (type === "signup") {
-      console.log("Signup Input:", signupInput);
+    try {
+      setLoading(true);
+      if (type === "login") {
+        const response = await authAPI.login(loginInput);
+        if (response.success === true) {
+          toast.success(response.message);
+          dispatch(setUser(response.userResponse));
+          navigate("/");
+        }
+      } else if (type === "signup") {
+        const response = await authAPI.signup(signupInput);
+        if (response.success === true) {
+          toast.success(response.message);
+          setActiveTab("login");
+        }
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data.message);
+      } else {
+        toast.error("Something went wrong");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex justify-center mt-20">
-      <Tabs defaultValue="register" className="w-[400px]">
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as "login" | "register")}
+        className="w-[400px]"
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="register">Register</TabsTrigger>
           <TabsTrigger value="login">Login</TabsTrigger>
@@ -88,7 +118,7 @@ export function Login() {
                     placeholder="admin"
                     name="username"
                     value={signupInput.username}
-                    onChange={(e) => handleInputChange(e, "signup")}
+                    onChange={(e) => handleInputChange(e, "register")}
                     required
                   />
                 </div>
@@ -99,7 +129,7 @@ export function Login() {
                     placeholder="admin@example.com"
                     name="email"
                     value={signupInput.email}
-                    onChange={(e) => handleInputChange(e, "signup")}
+                    onChange={(e) => handleInputChange(e, "register")}
                     required
                   />
                 </div>
@@ -110,15 +140,22 @@ export function Login() {
                     placeholder="******"
                     name="password"
                     value={signupInput.password}
-                    onChange={(e) => handleInputChange(e, "signup")}
+                    onChange={(e) => handleInputChange(e, "register")}
                     required
                   />
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col items-center gap-2">
-                <Button type="submit" className="w-full">
-                  Register
-                </Button>
+                {loading ? (
+                  <Button disabled className="w-full">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
+                    wait...
+                  </Button>
+                ) : (
+                  <Button type="submit" className="w-full">
+                    Register
+                  </Button>
+                )}
                 <p className="text-sm">
                   Already have an account?{" "}
                   <span className="text-blue-600 cursor-pointer">
@@ -163,9 +200,16 @@ export function Login() {
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col items-center gap-2">
-                <Button type="submit" className="w-full">
-                  Login
-                </Button>
+                {loading ? (
+                  <Button disabled className="w-full">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
+                    wait...
+                  </Button>
+                ) : (
+                  <Button type="submit" className="w-full">
+                    Login
+                  </Button>
+                )}
                 <p className="text-sm">
                   Don't have an account?{" "}
                   <span className="text-blue-600 cursor-pointer">

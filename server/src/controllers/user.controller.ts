@@ -56,6 +56,15 @@ const login = async (req: Request, res: Response) => {
 
     const token = await user.generateToken();
 
+    const userResponse = {
+      username: user.username,
+      email: user.email,
+      _id: user._id,
+      role: user.role,
+      enrolledCourses: user.enrolledCourses,
+      avatar: user.avatar,
+    };
+
     res
       .status(200)
       .cookie("token", token, {
@@ -63,7 +72,7 @@ const login = async (req: Request, res: Response) => {
         maxAge: 24 * 60 * 60 * 1000, //hour min second milisecond = 1 day
         sameSite: "strict",
       })
-      .json({ message: "Login successfully", success: true, user });
+      .json({ message: "Login successfully", success: true, userResponse });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ success: false, message: "Failed to login" });
