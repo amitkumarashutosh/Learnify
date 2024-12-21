@@ -1,10 +1,11 @@
-import Navbar from "@/components/Navbar";
+import Courses from "./student/Courses";
+import HeroSection from "./student/HeroSection";
 
 const Home = () => {
   return (
     <div>
-      <Navbar />
-      <p>home</p>
+      <HeroSection />
+      <Courses />
     </div>
   );
 };

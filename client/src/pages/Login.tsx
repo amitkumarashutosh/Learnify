@@ -33,7 +33,7 @@ export function Login() {
     email: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabValue>("register");
 
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ export function Login() {
         const response = await authAPI.login(loginInput);
         if (response.success === true) {
           toast.success(response.message);
-          dispatch(setUser(response.userResponse));
+          dispatch(setUser(response.user));
           navigate("/");
         }
       } else if (type === "signup") {
@@ -158,7 +158,10 @@ export function Login() {
                 )}
                 <p className="text-sm">
                   Already have an account?{" "}
-                  <span className="text-blue-600 cursor-pointer">
+                  <span
+                    className="text-blue-600 cursor-pointer"
+                    onClick={() => setActiveTab("login")}
+                  >
                     Login here
                   </span>
                 </p>
@@ -212,7 +215,10 @@ export function Login() {
                 )}
                 <p className="text-sm">
                   Don't have an account?{" "}
-                  <span className="text-blue-600 cursor-pointer">
+                  <span
+                    className="text-blue-600 cursor-pointer"
+                    onClick={() => setActiveTab("register")}
+                  >
                     Register here
                   </span>
                 </p>

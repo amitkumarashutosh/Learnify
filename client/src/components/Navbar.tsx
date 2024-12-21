@@ -19,17 +19,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import DarkMode from "./DarkMode";
 import { User } from "@/types/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Separator } from "./ui/separator";
+import { clearUser } from "@/app/features/authSlice";
 
 const Navbar = () => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const navigate = useNavigate();
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   return (
     <div className="h-16 dark:bg-[#0A0A0A] bg-white border-b dark:border-b-gray-800 border-b-gray-200 fixed top-0 left-0 right-0 duration-300 z-10">
@@ -53,14 +53,34 @@ const Navbar = () => {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Learning</DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to="/profile" className="w-full">
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to="/learning" className="w-full">
+                      Learning
+                    </Link>
+                  </DropdownMenuItem>
                   {user.role === "instructor" && (
-                    <DropdownMenuItem>Admin Dashboard</DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link to="/profile" className="w-full">
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
                   )}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Log out</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link
+                    to="/login"
+                    className="w-full"
+                    onClick={() => dispatch(clearUser())}
+                  >
+                    Log out
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -83,6 +103,7 @@ interface MobileNavbarProps {
 }
 
 const MobileNavbar = ({ user }: MobileNavbarProps) => {
+  const dispatch = useDispatch();
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -106,7 +127,9 @@ const MobileNavbar = ({ user }: MobileNavbarProps) => {
         <nav className="flex flex-col space-y-4 w-full">
           <Link to="/learning">My Learning</Link>
           <Link to="/profile">Edit Profile</Link>
-          <Link to="/login">Log out </Link>
+          <Link to="/login" onClick={() => dispatch(clearUser())}>
+            Log out{" "}
+          </Link>
         </nav>
         {user?.role === "instructor" && (
           <SheetFooter>

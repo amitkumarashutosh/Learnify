@@ -1,5 +1,10 @@
-import { api } from "@/lib/axios";
-import { LoginInput, SignupInput, AuthResponse } from "@/types/auth";
+import { api, apiForm } from "@/lib/axios";
+import {
+  LoginInput,
+  SignupInput,
+  AuthResponse,
+  ProfileUpdateInput,
+} from "@/types/auth";
 
 export const authAPI = {
   login: async (credentials: LoginInput) => {
@@ -7,7 +12,6 @@ export const authAPI = {
       "/api/user/login",
       credentials
     );
-    console.log(response.data);
     return response.data;
   },
 
@@ -21,6 +25,32 @@ export const authAPI = {
 
   logout: async () => {
     const response = await api.get<AuthResponse>("/api/user/logout");
+    return response.data;
+  },
+
+  profile: async () => {
+    const response = await api.get<AuthResponse>("/api/user/profile");
+    return response.data;
+  },
+
+  updateProfile: async (userData: ProfileUpdateInput) => {
+    if (userData.avatar) {
+      const formData = new FormData();
+
+      if (userData.username) formData.append("username", userData.username);
+      if (userData.avatar) formData.append("avatar", userData.avatar);
+
+      const response = await apiForm.put<AuthResponse>(
+        "/api/user/profile/update",
+        formData
+      );
+      return response.data;
+    }
+
+    const response = await api.put<AuthResponse>(
+      "/api/user/profile/update",
+      userData
+    );
     return response.data;
   },
 };

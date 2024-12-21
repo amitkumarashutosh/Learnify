@@ -4,12 +4,10 @@ import { User } from "@/types/auth";
 
 interface AuthState {
   user: User | null;
-  isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
-  isAuthenticated: false,
 };
 
 export const authSlice = createSlice({
@@ -18,11 +16,9 @@ export const authSlice = createSlice({
   reducers: {
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
-      state.isAuthenticated = true;
     },
     clearUser: (state) => {
       state.user = null;
-      state.isAuthenticated = false;
     },
   },
 });

@@ -14,10 +14,17 @@ export interface User {
   role: "instructor" | "student";
   enrolledCourses?: string[];
   avatar: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthResponse {
   message: string;
   success: boolean;
-  userResponse: User;
+  user: User;
+}
+
+export interface ProfileUpdateInput {
+  username?: string;
+  avatar?: File | null;
 }
