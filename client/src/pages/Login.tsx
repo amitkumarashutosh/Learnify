@@ -94,7 +94,7 @@ export function Login() {
     <div className="flex justify-center mt-20">
       <Tabs
         value={activeTab}
-        onValueChange={(value) => setActiveTab(value as "login" | "register")}
+        onValueChange={(value) => setActiveTab(value as TabValue)}
         className="w-[400px]"
       >
         <TabsList className="grid w-full grid-cols-2">

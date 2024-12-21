@@ -7,6 +7,7 @@ export const authAPI = {
       "/api/user/login",
       credentials
     );
+    console.log(response.data);
     return response.data;
   },
 
