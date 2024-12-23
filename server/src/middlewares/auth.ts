@@ -1,12 +1,13 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import { User } from "../models/user.model";
 
 export interface AuthRequest extends Request {
   _id?: string;
   file?: Express.Multer.File;
 }
 
-const isAuthenticated = async (
+export const isAuthenticated = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -43,4 +44,33 @@ const isAuthenticated = async (
   }
 };
 
-export default isAuthenticated;
+export const isAdmin = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await User.findById(req._id);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+        success: false,
+      });
+    }
+
+    if (user.role !== "instructor") {
+      return res.status(403).json({
+        message: "Access denied. Instructor role required.",
+        success: false,
+      });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      message: "An error occurred while checking authentication.",
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};

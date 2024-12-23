@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDB from "./db/db";
 import userRouter from "./routes/user.route";
+import courseRouter from "./routes/course.route";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -13,6 +14,7 @@ app.use(cookieParser());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use("/api/user", userRouter);
+app.use("/api/course", courseRouter);
 
 app.get("/health", (req: Request, res: Response) => {
   res.json({ message: "Health OK!" });

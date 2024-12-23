@@ -15,3 +15,14 @@ export const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({
   const { user } = useSelector((state: RootState) => state.auth);
   return user ? <>{children}</> : <Navigate to="/login" replace />;
 };
+
+export const PrivateAdminRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  return user?.role === "instructor" ? (
+    <>{children}</>
+  ) : (
+    <Navigate to="/login" replace />
+  );
+};

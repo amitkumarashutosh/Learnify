@@ -14,8 +14,8 @@ export interface User {
   role: "instructor" | "student";
   enrolledCourses?: string[];
   avatar: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface AuthResponse {

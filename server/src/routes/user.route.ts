@@ -6,7 +6,7 @@ import {
   getUserProfile,
   updateUserProfile,
 } from "../controllers/user.controller";
-import isAuthenticated from "../middlewares/auth";
+import { isAuthenticated } from "../middlewares/auth";
 import upload from "../utils/multer";
 
 const router = express.Router();
