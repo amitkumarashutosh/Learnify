@@ -23,11 +23,16 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { courseAPI } from "@/app/features/api/courseAPI";
+import { toast } from "sonner";
 
 const CourseTab = () => {
   const [input, setInput] = useState<Partial<Course>>({});
   const [previewThumbnail, setPreviewThumbnail] = useState<string>("");
   const [image, setImage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState<boolean>(false);
+  const [publish, setPublish] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   const params = useParams();
 
@@ -52,9 +57,6 @@ const CourseTab = () => {
     }
   };
 
-  const isPublished = false;
-  const isLoading = false;
-
   const updateCourseHandler = async () => {
     const formData = new FormData();
     if (input.title) formData.append("title", input.title);
@@ -66,19 +68,50 @@ const CourseTab = () => {
 
     if (input.thumbnail) formData.append("thumbnail", input.thumbnail);
 
-    // Submit formData to the server here
+    try {
+      setIsSaving(true);
+      const response = await courseAPI.updateCourse(params.courseId!, formData);
+      if (response.course) {
+        toast.success(response.message);
+      }
+    } catch (error) {
+      toast.error("Failed to save course");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const publishStatusHandler = async () => {
-    //   try {
-    //   const response = await publishCourse({courseId, query:action});
-    //   if(response.data){
-    //     refetch();
-    //     toast.success(response.data.message);
-    //   }
-    // } catch (error) {
-    //   toast.error("Failed to publish or unpublish course");
-    //   }
+  const updateStatusHandler = async () => {
+    try {
+      setIsPublishing(true);
+      const response = await courseAPI.updateCourseStatus(
+        params.courseId!,
+        !publish
+      );
+      if (response.success) {
+        setPublish(!publish);
+        toast.success(response.message);
+      }
+    } catch (error) {
+      toast.error("Failed to update course status");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const deleteCourseHandler = async () => {
+    try {
+      setIsDeleting(true);
+      const response = await courseAPI.deleteCourse(params.courseId!);
+      if (response.success) {
+        toast.success(response.message);
+        navigate("/admin/course");
+      }
+    } catch (error) {
+      toast.error("Failed to delete course");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   useEffect(() => {
@@ -86,6 +119,8 @@ const CourseTab = () => {
       try {
         const response = await courseAPI.getCourse(params.courseId!);
         setInput(response);
+
+        if (response.isPublished) setPublish(response.isPublished);
         if (typeof response.thumbnail === "string") {
           setImage(response.thumbnail);
         }
@@ -104,10 +139,24 @@ const CourseTab = () => {
           </CardDescription>
         </div>
         <div className="space-x-2">
-          <Button variant={"outline"}>
-            {isPublished ? "Unpublish" : "Publish"}
-          </Button>
-          <Button>Remove course</Button>
+          {isPublishing ? (
+            <Button disabled>
+              <Loader className="mr-2 h-4 w-4 animate-spin" />
+              Please wait
+            </Button>
+          ) : (
+            <Button variant={"outline"} onClick={updateStatusHandler}>
+              {publish ? "Unpublish" : "Publish"}
+            </Button>
+          )}
+          {isDeleting ? (
+            <Button disabled>
+              <Loader className="mr-2 h-4 w-4 animate-spin" />
+              Please wait
+            </Button>
+          ) : (
+            <Button onClick={deleteCourseHandler}>Remove course</Button>
+          )}
         </div>
       </CardHeader>
 
@@ -140,10 +189,7 @@ const CourseTab = () => {
           <div className="flex items-center gap-5">
             <div>
               <Label>Category</Label>
-              <Select
-                defaultValue={input.category}
-                onValueChange={selectCategory}
-              >
+              <Select onValueChange={selectCategory}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
@@ -172,10 +218,7 @@ const CourseTab = () => {
             </div>
             <div>
               <Label>Course Level</Label>
-              <Select
-                defaultValue={input.level}
-                onValueChange={selectCourseLevel}
-              >
+              <Select onValueChange={selectCourseLevel}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select a course level" />
                 </SelectTrigger>
@@ -183,7 +226,7 @@ const CourseTab = () => {
                   <SelectGroup>
                     <SelectLabel>Course Level</SelectLabel>
                     <SelectItem value="Beginner">Beginner</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
+                    <SelectItem value="Intermediate">Intermediate</SelectItem>
                     <SelectItem value="Advance">Advance</SelectItem>
                   </SelectGroup>
                 </SelectContent>
@@ -224,7 +267,7 @@ const CourseTab = () => {
             <Button onClick={() => navigate("/admin/course")} variant="outline">
               Cancel
             </Button>
-            {isLoading ? (
+            {isSaving ? (
               <>
                 <Button disabled>
                   <Loader className="mr-2 h-4 w-4 animate-spin" />

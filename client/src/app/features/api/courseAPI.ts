@@ -4,6 +4,7 @@ import {
   CourseInput,
   CourseResponse,
   CreatorCoursesResponse,
+  UpdateCourseResponse,
 } from "@/types/course";
 
 export const courseAPI = {
@@ -22,11 +23,25 @@ export const courseAPI = {
     const response = await api.get<Partial<Course>>(`/api/course/${courseId}`);
     return response.data;
   },
-  // updateCourse: async (courseId: string, courseData: CourseInput) => {
-  //   const response = await apiForm.put<CourseResponse>(
-  //     `/api/course/${courseId}`,
-  //     courseData
-  //   );
-  //   return response.
-  // }
+  updateCourse: async (courseId: string, courseData: FormData) => {
+    const response = await apiForm.put<UpdateCourseResponse>(
+      `/api/course/${courseId}`,
+      courseData
+    );
+    return response.data;
+  },
+  updateCourseStatus: async (courseId: string, status: boolean) => {
+    const response = await api.patch<CourseResponse>(
+      `/api/course/status/${courseId}`,
+      { isPublished: status }
+    );
+    return response.data;
+  },
+
+  deleteCourse: async (courseId: string) => {
+    const response = await api.delete<CourseResponse>(
+      `/api/course/${courseId}`
+    );
+    return response.data;
+  },
 };

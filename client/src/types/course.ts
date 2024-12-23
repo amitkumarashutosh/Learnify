@@ -19,13 +19,16 @@ export interface CourseInput {
 }
 
 export interface CourseResponse {
-  success: boolean;
-  message: string;
-  course: Course;
+  success?: boolean;
+  message?: string;
+  course?: Course;
 }
 
 export interface CreatorCoursesResponse {
   courses: Course[] | [];
 }
 
-export interface GetCourseResponse {}
+export interface UpdateCourseResponse {
+  message: string;
+  course: Course;
+}

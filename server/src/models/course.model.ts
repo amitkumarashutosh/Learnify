@@ -5,7 +5,7 @@ interface ICourse {
   subtitle?: string;
   description?: string;
   category: string;
-  level: string;
+  level: "Beginner" | "Intermediate" | "Advance";
   price: number;
   thumbnail: string;
   enrolledStudents?: mongoose.Types.ObjectId[];
@@ -27,7 +27,7 @@ const courseSchema = new mongoose.Schema<ICourseDocument>(
     category: { type: String, required: true },
     level: {
       type: String,
-      enum: ["Beginner", "Intermediate", "Advanced"],
+      enum: ["Beginner", "Intermediate", "Advance"],
       default: "Beginner",
     },
     price: { type: Number, required: true, default: 0 },

@@ -115,6 +115,7 @@ const getCourse = async (req: Request, res: Response) => {
       level: course.level,
       subtitle: course.subtitle,
       creator: course.creator,
+      isPublished: course.isPublished,
     });
   } catch (error) {
     console.log(error);
@@ -124,4 +125,61 @@ const getCourse = async (req: Request, res: Response) => {
   }
 };
 
-export { createCourse, getCreatorCourse, getCourse, editCourse };
+const updateCourseStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const courseId = req.params.courseId;
+    const { isPublished } = req.body;
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found!",
+      });
+    }
+    course.isPublished = isPublished;
+    await course.save();
+    return res.status(200).json({
+      success: true,
+      message: `${
+        isPublished ? "Course published" : "Course unpublished"
+      } successfully.`,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Failed to update course status" });
+  }
+};
+
+const deleteCourse = async (req: AuthRequest, res: Response) => {
+  try {
+    const courseId = req.params.courseId;
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found!",
+      });
+    }
+    const publicId = course.thumbnail.split("/").pop()?.split(".")[0];
+    if (publicId) {
+      await deleteMediaFromCloudinary(publicId);
+    }
+    await Course.findByIdAndDelete(courseId);
+    return res.status(200).json({
+      success: true,
+      message: "Course deleted successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to delete course",
+    });
+  }
+};
+
+export {
+  createCourse,
+  getCreatorCourse,
+  getCourse,
+  editCourse,
+  updateCourseStatus,
+  deleteCourse,
+};
