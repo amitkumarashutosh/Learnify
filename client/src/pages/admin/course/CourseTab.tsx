@@ -32,7 +32,7 @@ const CourseTab = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [publish, setPublish] = useState<boolean>(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const navigate = useNavigate();
   const params = useParams();
 

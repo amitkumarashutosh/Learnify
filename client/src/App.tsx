@@ -14,6 +14,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import CourseTable from "./pages/admin/course/CourseTable";
 import AddCourse from "./pages/admin/course/AddCourse";
 import EditCourse from "./pages/admin/course/EditCourse";
+import CreateLecture from "./pages/admin/lecture/CreateLecture";
 
 const App = () => {
   return (
@@ -77,6 +78,7 @@ const App = () => {
           <Route path="course" element={<CourseTable />} />
           <Route path="course/create" element={<AddCourse />} />
           <Route path="course/:courseId" element={<EditCourse />} />
+          <Route path="course/:courseId/lecture" element={<CreateLecture />} />
         </Route>
       </Routes>
     </Router>

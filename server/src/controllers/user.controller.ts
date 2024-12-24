@@ -135,21 +135,24 @@ const updateUserProfile = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    if (user.avatar) {
-      const publicId = user.avatar.split("/").pop()?.split(".")[0];
-      if (publicId) await deleteMediaFromCloudinary(publicId);
+    let cloudResponse = null;
+    if (avatar) {
+      if (user.avatar) {
+        const publicId = user.avatar.split("/").pop()?.split(".")[0];
+        if (publicId) await deleteMediaFromCloudinary(publicId);
+      }
+      cloudResponse = await uploadMedia(avatar);
     }
-
-    const cloudResponse = avatar?.path ? await uploadMedia(avatar.path) : null;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
-        username,
-        avatar: cloudResponse?.secure_url,
+        ...(username && { username }),
+        ...(cloudResponse?.secure_url && { avatar: cloudResponse.secure_url }),
       },
       { new: true }
     );
+
     return res.status(200).json({
       success: true,
       message: "User profile updated successfully",
@@ -169,5 +172,4 @@ const updateUserProfile = async (req: AuthRequest, res: Response) => {
     });
   }
 };
-
 export { register, login, logout, getUserProfile, updateUserProfile };

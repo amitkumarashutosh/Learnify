@@ -6,6 +6,8 @@ import {
   getCourse,
   updateCourseStatus,
   deleteCourse,
+  createLecture,
+  getLectures,
 } from "../controllers/course.controller";
 import { isAuthenticated, isAdmin } from "../middlewares/auth";
 import upload from "../utils/multer";
@@ -23,4 +25,8 @@ router
   .patch(isAuthenticated, isAdmin, updateCourseStatus);
 router.route("/:courseId").delete(isAuthenticated, isAdmin, deleteCourse);
 
+router
+  .route("/:courseId/lecture")
+  .post(isAuthenticated, isAdmin, createLecture);
+router.route("/:courseId/lecture").get(isAuthenticated, isAdmin, getLectures);
 export default router;

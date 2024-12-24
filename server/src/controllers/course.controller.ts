@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Course } from "../models/course.model";
 import { AuthRequest } from "../middlewares/auth";
 import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary";
+import { Lecture } from "../models/lecture.model";
 
 const createCourse = async (req: AuthRequest, res: Response) => {
   try {
@@ -53,6 +54,8 @@ const editCourse = async (req: AuthRequest, res: Response) => {
     }
 
     let courseThumbnail = course.thumbnail;
+    let cloudResponse = null;
+
     if (thumbnail) {
       if (course.thumbnail) {
         const publicId = course.thumbnail.split("/").pop()?.split(".")[0];
@@ -61,25 +64,31 @@ const editCourse = async (req: AuthRequest, res: Response) => {
         }
       }
 
-      const uploadedThumbnail = await uploadMedia(thumbnail.path);
-      if (uploadedThumbnail && uploadedThumbnail.secure_url) {
-        courseThumbnail = uploadedThumbnail.secure_url;
-      } else {
-        return res.status(500).json({
-          message: "Failed to upload thumbnail",
-        });
+      cloudResponse = await uploadMedia(thumbnail);
+      if (cloudResponse?.secure_url) {
+        courseThumbnail = cloudResponse.secure_url;
       }
     }
 
-    const updateData: Partial<typeof course> = {};
+    const updateData = {
+      ...(title && { title }),
+      ...(price && { price }),
+      ...(level && { level }),
+      ...(category && { category }),
+      ...(description && { description }),
+      ...(subtitle && { subtitle }),
+      ...(cloudResponse?.secure_url && { thumbnail: courseThumbnail }),
+    };
 
-    if (title) updateData.title = title;
-    if (price) updateData.price = price;
-    if (level) updateData.level = level;
-    if (category) updateData.category = category;
-    if (description) updateData.description = description;
-    if (subtitle) updateData.subtitle = subtitle;
-    if (thumbnail) updateData.thumbnail = courseThumbnail;
+    // OR
+    // const updateData = {};
+    // if (title) updateData.title = title;
+    // if (price) updateData.price = price;
+    // if (level) updateData.level = level;
+    // if (category) updateData.category = category;
+    // if (description) updateData.description = description;
+    // if (subtitle) updateData.subtitle = subtitle;
+    // if (thumbnail) updateData.thumbnail = courseThumbnail;
 
     course = await Course.findByIdAndUpdate(courseId, updateData, {
       new: true,
@@ -96,7 +105,6 @@ const editCourse = async (req: AuthRequest, res: Response) => {
     });
   }
 };
-
 const getCourse = async (req: Request, res: Response) => {
   try {
     const courseId = req.params.courseId;
@@ -175,6 +183,57 @@ const deleteCourse = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const createLecture = async (req: AuthRequest, res: Response) => {
+  try {
+    const { title } = req.body;
+    const { courseId } = req.params;
+
+    if (!title || !courseId) {
+      return res.status(400).json({
+        message: "Title is required",
+      });
+    }
+
+    const lecture = await Lecture.create({ title });
+
+    const course = await Course.findById(courseId);
+    if (course) {
+      course.lectures.push(lecture._id);
+      await course.save();
+    }
+    return res.status(200).json({
+      lecture,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to create lecture",
+    });
+  }
+};
+
+const getLectures = async (req: AuthRequest, res: Response) => {
+  try {
+    const courseId = req.params.courseId;
+    const course = await Course.findById(courseId).populate("lectures");
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found!",
+      });
+    }
+    return res.status(200).json({
+      lectures: course.lectures,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get lectures",
+    });
+  }
+};
+
 export {
   createCourse,
   getCreatorCourse,
@@ -182,4 +241,6 @@ export {
   editCourse,
   updateCourseStatus,
   deleteCourse,
+  createLecture,
+  getLectures,
 };

@@ -4,8 +4,11 @@ import {
   CourseInput,
   CourseResponse,
   CreatorCoursesResponse,
+  getLectureResponse,
+  LectureResponse,
   UpdateCourseResponse,
 } from "@/types/course";
+import { get } from "http";
 
 export const courseAPI = {
   createCourse: async (courseData: CourseInput) => {
@@ -41,6 +44,19 @@ export const courseAPI = {
   deleteCourse: async (courseId: string) => {
     const response = await api.delete<CourseResponse>(
       `/api/course/${courseId}`
+    );
+    return response.data;
+  },
+  addLecture: async (courseId: string, title: string) => {
+    const response = await api.post<LectureResponse>(
+      `/api/course/${courseId}/lecture`,
+      { title }
+    );
+    return response.data;
+  },
+  getLectures: async (courseId: string) => {
+    const response = await api.get<getLectureResponse>(
+      `/api/course/${courseId}/lecture`
     );
     return response.data;
   },

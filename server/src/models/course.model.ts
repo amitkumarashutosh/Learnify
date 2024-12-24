@@ -9,7 +9,7 @@ interface ICourse {
   price: number;
   thumbnail: string;
   enrolledStudents?: mongoose.Types.ObjectId[];
-  lectures?: mongoose.Types.ObjectId[];
+  lectures: mongoose.Types.ObjectId[];
   creator: mongoose.Types.ObjectId;
   isPublished: boolean;
 }
@@ -37,7 +37,11 @@ const courseSchema = new mongoose.Schema<ICourseDocument>(
         "https://blogassets.leverageedu.com/blog/wp-content/uploads/2020/02/11185533/B-Tech-Courses.jpg",
     },
     enrolledStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    lectures: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lecture" }],
+    lectures: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Lecture",
+      default: [],
+    },
     creator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     isPublished: { type: Boolean, default: false },
   },

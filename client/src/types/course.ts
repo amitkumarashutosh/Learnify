@@ -32,3 +32,20 @@ export interface UpdateCourseResponse {
   message: string;
   course: Course;
 }
+
+export interface LectureType {
+  _id: string;
+  title: string;
+  isPreview?: boolean;
+  videoUrl?: string;
+  publicId?: string;
+}
+
+export interface LectureResponse {
+  lecture?: LectureType;
+  success?: boolean;
+}
+
+export interface getLectureResponse {
+  lectures: LectureType[];
+}

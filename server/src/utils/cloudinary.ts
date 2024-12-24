@@ -8,9 +8,16 @@ cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
 });
 
-export const uploadMedia = async (file: string) => {
+export const uploadMedia = async (file: Express.Multer.File | undefined) => {
   try {
-    const uploadResponse = await cloudinary.uploader.upload(file, {
+    if (!file || !file.buffer) {
+      throw new Error("No file provided");
+    }
+
+    const b64 = Buffer.from(file.buffer).toString("base64");
+    const dataURI = `data:${file.mimetype};base64,${b64}`;
+
+    const uploadResponse = await cloudinary.uploader.upload(dataURI, {
       resource_type: "auto",
     });
     return uploadResponse;
