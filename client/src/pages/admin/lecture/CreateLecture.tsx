@@ -101,7 +101,7 @@ const CreateLecture = () => {
       </div>
       <div className="mt-4">
         <Table>
-          <TableCaption>A list of your recent courses.</TableCaption>
+          <TableCaption>A list of your recent lectures.</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Lecture</TableHead>

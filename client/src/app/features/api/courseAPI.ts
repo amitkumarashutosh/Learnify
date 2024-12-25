@@ -60,4 +60,24 @@ export const courseAPI = {
     );
     return response.data;
   },
+  updateLecture: async (
+    courseId: string,
+    lectureId: string,
+    title: string,
+    videoUrl: string,
+    publicId: string,
+    isFree: boolean
+  ) => {
+    const response = await apiForm.put<LectureResponse>(
+      `/api/course/${courseId}/lecture/${lectureId}`,
+      { title, videoUrl, publicId, isFree }
+    );
+    return response.data;
+  },
+  deleteLecture: async (courseId: string, lectureId: string) => {
+    const response = await api.delete<LectureResponse>(
+      `/api/course/${courseId}/lecture/${lectureId}`
+    );
+    return response.data;
+  },
 };
