@@ -1,18 +1,46 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
+import { courseAPI } from "@/app/features/api/courseAPI";
+import { Course as CourseType } from "@/types/course";
 import Course from "./Course";
+import { Loader2 } from "lucide-react";
 
 const Courses = () => {
-  const isLoading = false;
+  const [courses, setCourses] = useState<CourseType[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const fetchCourses = async () => {
+    setIsLoading(true);
+    try {
+      const res = await courseAPI.getPublishedCourses();
+      if (res.success) {
+        setCourses(res.courses);
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  if (isLoading) {
+    return <Loader2 className="mx-auto mt-20 animate-spin" />;
+  }
+
   return (
     <div className="bg-gray-50 dark:bg-[#141414]">
       <div className="max-w-7xl mx-auto p-6">
         <h2 className="font-bold text-3xl text-center mb-10">Our Courses</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {isLoading
-            ? Array.from({ length: 8 }).map((_, index) => (
+            ? Array.from({ length: courses.length }).map((_, index) => (
                 <CourseSkeleton key={index} />
               ))
-            : [1, 2, 3, 4, 5, 6].map((_, index) => <Course />)}
+            : courses?.map((course) => (
+                <Course key={course._id} course={course} />
+              ))}
         </div>
       </div>
     </div>

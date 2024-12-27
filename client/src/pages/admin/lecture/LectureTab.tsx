@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -56,6 +56,11 @@ const LectureTab = () => {
     }
 
     const formData = new FormData();
+
+    if (uploadVideoInfo?.publicId) {
+      formData.append("publicId", uploadVideoInfo.publicId);
+    }
+
     formData.append("file", file);
     setUploadProgress(true);
 
@@ -69,7 +74,6 @@ const LectureTab = () => {
       );
 
       if (res.data.success) {
-        console.log(res.data.data.public_id);
         setUploadVideoInfo({
           videoUrl: res.data.data.url,
           publicId: res.data.data.public_id,
@@ -127,6 +131,24 @@ const LectureTab = () => {
       setRemoveLoading(false);
     }
   };
+
+  const fetchLecture = async () => {
+    try {
+      const res = await courseAPI.getLecture(lectureId);
+      if (res.success && res.lecture) {
+        setLectureTitle(res.lecture.title);
+        setIsFree(res.lecture.isPreview ?? false);
+        setUploadVideoInfo({
+          videoUrl: res.lecture.videoUrl || "",
+          publicId: res.lecture.publicId || "",
+        });
+      }
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    fetchLecture();
+  }, []);
 
   return (
     <Card>

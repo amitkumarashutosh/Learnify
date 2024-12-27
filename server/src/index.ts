@@ -6,6 +6,7 @@ import connectDB from "./db/db";
 import userRouter from "./routes/user.route";
 import courseRouter from "./routes/course.route";
 import mediaRouter from "./routes/media.route";
+import purchaseRouter from "./routes/purchaseCourse.route";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -17,6 +18,7 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use("/api/media", mediaRouter);
 app.use("/api/user", userRouter);
 app.use("/api/course", courseRouter);
+app.use("/api/purchase", purchaseRouter);
 
 app.get("/health", (req: Request, res: Response) => {
   res.json({ message: "Health OK!" });

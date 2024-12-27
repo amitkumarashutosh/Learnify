@@ -253,7 +253,7 @@ const editLecture = async (req: AuthRequest, res: Response) => {
     if (videoUrl) lecture.videoUrl = videoUrl;
     if (publicId) lecture.publicId = publicId;
     if (isFree === true) lecture.isPreview = true;
-    else lecture.isPreview = false;
+    if (isFree === false) lecture.isPreview = false;
 
     await lecture.save();
 
@@ -331,6 +331,24 @@ const getLectureById = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const getPublishedCourses = async (req: AuthRequest, res: Response) => {
+  try {
+    const courses = await Course.find({ isPublished: true }).populate({
+      path: "creator",
+      select: "username email avatar",
+    });
+    return res.status(200).json({
+      success: true,
+      courses,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to get published courses",
+    });
+  }
+};
+
 export {
   createCourse,
   getCreatorCourse,
@@ -343,4 +361,5 @@ export {
   editLecture,
   removeLecture,
   getLectureById,
+  getPublishedCourses,
 };

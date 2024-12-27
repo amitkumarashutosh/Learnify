@@ -8,9 +8,13 @@ export interface Course {
   price: number;
   thumbnail: string | File;
   enrolledStudents?: string[];
-  lectures?: string[];
-  creator: string;
+  lectures?: LectureType[];
+  creator?: {
+    username: string;
+    avatar: string;
+  };
   isPublished: boolean;
+  updatedAt?: string;
 }
 
 export interface CourseInput {
@@ -25,6 +29,7 @@ export interface CourseResponse {
 }
 
 export interface CreatorCoursesResponse {
+  success?: boolean;
   courses: Course[] | [];
 }
 
@@ -48,4 +53,10 @@ export interface LectureResponse {
 
 export interface getLectureResponse {
   lectures: LectureType[];
+}
+
+export interface CoursePurchaed {
+  course: Course;
+  success: boolean;
+  purchased: boolean;
 }

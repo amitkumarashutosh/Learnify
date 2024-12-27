@@ -8,7 +8,6 @@ import {
   LectureResponse,
   UpdateCourseResponse,
 } from "@/types/course";
-import { get } from "http";
 
 export const courseAPI = {
   createCourse: async (courseData: CourseInput) => {
@@ -77,6 +76,18 @@ export const courseAPI = {
   deleteLecture: async (courseId: string, lectureId: string) => {
     const response = await api.delete<LectureResponse>(
       `/api/course/${courseId}/lecture/${lectureId}`
+    );
+    return response.data;
+  },
+  getLecture: async (lectureId: string) => {
+    const response = await api.get<LectureResponse>(
+      `/api/course/lecture/${lectureId}`
+    );
+    return response.data;
+  },
+  getPublishedCourses: async () => {
+    const response = await api.get<CreatorCoursesResponse>(
+      "/api/course/published"
     );
     return response.data;
   },

@@ -15,6 +15,7 @@ interface ICourse {
 }
 
 interface ICourseDocument extends ICourse, mongoose.Document {
+  _id: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,7 +31,7 @@ const courseSchema = new mongoose.Schema<ICourseDocument>(
       enum: ["Beginner", "Intermediate", "Advance"],
       default: "Beginner",
     },
-    price: { type: Number, required: true, default: 0 },
+    price: { type: Number, required: true, default: 99 },
     thumbnail: {
       type: String,
       default:

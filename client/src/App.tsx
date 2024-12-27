@@ -16,6 +16,8 @@ import AddCourse from "./pages/admin/course/AddCourse";
 import EditCourse from "./pages/admin/course/EditCourse";
 import CreateLecture from "./pages/admin/lecture/CreateLecture";
 import EditLecture from "./pages/admin/lecture/EditLecture";
+import CourseDetail from "./pages/student/CourseDetail";
+import CourseProgress from "./pages/student/CourseProgress";
 
 const App = () => {
   return (
@@ -61,6 +63,23 @@ const App = () => {
                 <Profile />
               </MainLayout>
             </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/course-detail/:courseId"
+          element={
+            <MainLayout>
+              <CourseDetail />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/course-progress/:courseId"
+          element={
+            <MainLayout>
+              <CourseProgress />
+            </MainLayout>
           }
         />
 
