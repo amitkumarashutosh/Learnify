@@ -5,6 +5,7 @@ import { Course as CourseType } from "@/types/course";
 import { Link } from "react-router-dom";
 
 const Course = ({ course }: { course: CourseType }) => {
+  if (!course) return null;
   return (
     <Link to={`/course-detail/${course._id}`}>
       <Card className="overflow-hidden rounded-lg dark:bg-gray-800 bg-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">

@@ -22,6 +22,14 @@ export const createCheckoutSession = async (
       return res.status(404).json({ message: "Course not found!" });
     }
 
+    const purchase = await PurchaseCourse.findOne({
+      userId,
+      courseId,
+    });
+    if (purchase) {
+      await PurchaseCourse.deleteOne({ _id: purchase._id });
+    }
+
     const newPurchase = await PurchaseCourse.create({
       courseId: courseId,
       userId: userId,
@@ -164,11 +172,12 @@ export const getCourseDetailWithPurchaseStatus = async (
     if (!course) {
       return res.status(404).json({ message: "course not found!" });
     }
+    console.log(purchased);
 
     return res.status(200).json({
       success: true,
       course,
-      purchased: !!purchased, // true if purchased, false otherwise
+      purchased: purchased?.status === "success" ? true : false,
     });
   } catch (error) {
     console.log(error);
