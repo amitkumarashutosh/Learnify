@@ -10,12 +10,12 @@ const HeroSection = () => {
   const searchHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/course/search?query=${encodeURIComponent(searchQuery)}`);
+      navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
     }
   };
 
   const exploreCoursesHandler = () => {
-    navigate(`/course/search?query`);
+    navigate("/search");
   };
 
   return (

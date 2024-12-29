@@ -95,6 +95,7 @@ const CourseProgress = () => {
               controls
               className="w-full h-auto md:rounded-lg"
               onTimeUpdate={() => {
+                // const video = e.target as HTMLVideoElement; OR
                 const video = videoRef.current;
                 if (video) {
                   const progress = (video.currentTime / video.duration) * 100;

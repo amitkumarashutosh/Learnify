@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Course from "./Course";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
@@ -59,6 +59,17 @@ const Profile = () => {
       setLoading(false);
     }
   };
+  const fetchUser = async () => {
+    try {
+      const response = await authAPI.profile();
+      if (response.success === true) {
+        dispatch(setUser(response.user));
+      }
+    } catch (error) {}
+  };
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto px-4 my-20">
@@ -152,7 +163,9 @@ const Profile = () => {
           {user?.enrolledCourses?.length === 0 ? (
             <h1>You haven't enrolled yet</h1>
           ) : (
-            user?.enrolledCourses?.map((_, index) => <Course key={index} />)
+            user?.enrolledCourses?.map((course: any) => (
+              <Course key={course?._id} course={course} />
+            ))
           )}
         </div>
       </div>

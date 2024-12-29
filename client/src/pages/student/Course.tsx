@@ -38,7 +38,7 @@ const Course = ({ course }: { course: CourseType }) => {
                 <AvatarFallback>ST</AvatarFallback>
               </Avatar>
               <h1 className="font-medium text-sm">
-                {course.creator?.username || "Unknown"}
+                {course.creator?.username || "Admin"}
               </h1>
             </div>
             <Badge className="bg-blue-600 text-white px-2 py-1 text-xs rounded-full">

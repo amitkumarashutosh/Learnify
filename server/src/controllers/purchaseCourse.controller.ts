@@ -190,7 +190,7 @@ export const getAllPurchasedCourse = async (
 ) => {
   try {
     const purchasedCourse = await PurchaseCourse.find({
-      status: "completed",
+      status: "success",
     }).populate("courseId");
     if (!purchasedCourse) {
       return res.status(404).json({

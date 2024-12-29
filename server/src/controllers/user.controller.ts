@@ -99,7 +99,9 @@ const logout = async (req: Request, res: Response) => {
 const getUserProfile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req._id;
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId)
+      .select("-password")
+      .populate("enrolledCourses");
 
     if (!user) {
       return res.status(404).json({

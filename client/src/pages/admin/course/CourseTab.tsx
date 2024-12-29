@@ -7,15 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Course } from "@/types/course";
@@ -24,6 +15,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { courseAPI } from "@/app/features/api/courseAPI";
 import { toast } from "sonner";
+import { categories } from "@/constants";
 
 const CourseTab = () => {
   const [input, setInput] = useState<Partial<Course>>({});
@@ -39,11 +31,13 @@ const CourseTab = () => {
   const changeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
-  const selectCategory = (value: string) => {
-    setInput({ ...input, category: value });
+
+  const selectCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setInput({ ...input, category: e.target.value });
   };
-  const selectCourseLevel = (value: string) => {
-    setInput({ ...input, level: value });
+
+  const selectCourseLevel = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setInput({ ...input, level: e.target.value });
   };
 
   const selectThumbnail = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +59,6 @@ const CourseTab = () => {
     if (input.category) formData.append("category", input.category);
     if (input.level) formData.append("level", input.level);
     if (input.price) formData.append("price", input.price.toString());
-
     if (input.thumbnail) formData.append("thumbnail", input.thumbnail);
 
     try {
@@ -155,7 +148,9 @@ const CourseTab = () => {
               Please wait
             </Button>
           ) : (
-            <Button onClick={deleteCourseHandler}>Remove course</Button>
+            <Button onClick={deleteCourseHandler} className="mt-2">
+              Remove
+            </Button>
           )}
         </div>
       </CardHeader>
@@ -186,51 +181,38 @@ const CourseTab = () => {
             <Label>Description</Label>
             <RichTextEditor input={input} setInput={setInput} />
           </div>
-          <div className="flex items-center gap-5">
-            <div>
+          <div className="flex items-center gap-5 flex-wrap">
+            <div className="flex flex-col gap-1 mt-1">
               <Label>Category</Label>
-              <Select onValueChange={selectCategory}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Category</SelectLabel>
-                    <SelectItem value="Next JS">Next JS</SelectItem>
-                    <SelectItem value="Data Science">Data Science</SelectItem>
-                    <SelectItem value="Frontend Development">
-                      Frontend Development
-                    </SelectItem>
-                    <SelectItem value="Fullstack Development">
-                      Fullstack Development
-                    </SelectItem>
-                    <SelectItem value="MERN Stack Development">
-                      MERN Stack Development
-                    </SelectItem>
-                    <SelectItem value="Javascript">Javascript</SelectItem>
-                    <SelectItem value="Python">Python</SelectItem>
-                    <SelectItem value="Docker">Docker</SelectItem>
-                    <SelectItem value="MongoDB">MongoDB</SelectItem>
-                    <SelectItem value="HTML">HTML</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <select
+                value={input.category || ""}
+                onChange={selectCategory}
+                className="w-[180px] border border-gray-300 rounded-md p-2 text-sm"
+              >
+                <option value="" disabled>
+                  Select a category
+                </option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.label}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div>
+            <div className="flex flex-col gap-1 mt-1">
               <Label>Course Level</Label>
-              <Select onValueChange={selectCourseLevel}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select a course level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Course Level</SelectLabel>
-                    <SelectItem value="Beginner">Beginner</SelectItem>
-                    <SelectItem value="Intermediate">Intermediate</SelectItem>
-                    <SelectItem value="Advance">Advance</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <select
+                value={input.level || ""}
+                onChange={selectCourseLevel}
+                className="w-[180px] border border-gray-300 rounded-md p-2 text-sm"
+              >
+                <option value="" disabled>
+                  Select a course level
+                </option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advance">Advance</option>
+              </select>
             </div>
             <div>
               <Label>Price in (INR)</Label>

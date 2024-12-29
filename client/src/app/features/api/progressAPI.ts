@@ -12,4 +12,8 @@ export const progressAPI = {
     );
     return response.data;
   },
+  getAllPurchasedCourses: async () => {
+    const response = await api.get("/api/purchase");
+    return response.data;
+  },
 };

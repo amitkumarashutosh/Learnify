@@ -91,4 +91,17 @@ export const courseAPI = {
     );
     return response.data;
   },
+  searchCourses: async (
+    query: string,
+    categories: string[],
+    sortByPrice: string
+  ) => {
+    const params = new URLSearchParams({
+      query,
+      categories: categories.join(","),
+      sortByPrice,
+    });
+    const response = await api.get(`/api/course/search?${params}`);
+    return response.data;
+  },
 };

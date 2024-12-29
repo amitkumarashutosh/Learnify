@@ -60,3 +60,28 @@ export interface CoursePurchaed {
   success: boolean;
   purchased: boolean;
 }
+
+export interface SearchResultProps {
+  course: {
+    _id: string;
+    title: string;
+    subtitle: string;
+    thumbnail: string;
+    level: string;
+    price: number;
+    creator: {
+      username: string;
+      avatar: string;
+    };
+  };
+}
+
+export interface CoursePurchaseType {
+  amount: number;
+  courseId: Course[];
+  paymentId: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  status: string;
+}

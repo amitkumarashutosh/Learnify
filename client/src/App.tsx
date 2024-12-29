@@ -8,6 +8,7 @@ import {
   PrivateAdminRoute,
   PrivateRoute,
   PublicRoute,
+  PurchasedCourseRoute,
 } from "./components/RouteGuards";
 import AdminLayout from "./layout/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
@@ -18,6 +19,7 @@ import CreateLecture from "./pages/admin/lecture/CreateLecture";
 import EditLecture from "./pages/admin/lecture/EditLecture";
 import CourseDetail from "./pages/student/CourseDetail";
 import CourseProgress from "./pages/student/CourseProgress";
+import SearchPage from "./pages/student/SearchPage";
 
 const App = () => {
   return (
@@ -67,6 +69,17 @@ const App = () => {
         />
 
         <Route
+          path="/search"
+          element={
+            <PrivateRoute>
+              <MainLayout>
+                <SearchPage />
+              </MainLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
           path="/course-detail/:courseId"
           element={
             <MainLayout>
@@ -77,9 +90,11 @@ const App = () => {
         <Route
           path="/course-progress/:courseId"
           element={
-            <MainLayout>
-              <CourseProgress />
-            </MainLayout>
+            <PurchasedCourseRoute>
+              <MainLayout>
+                <CourseProgress />
+              </MainLayout>
+            </PurchasedCourseRoute>
           }
         />
 

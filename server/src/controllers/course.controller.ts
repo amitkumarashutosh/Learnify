@@ -349,6 +349,50 @@ const getPublishedCourses = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const searchCourse = async (req: AuthRequest, res: Response) => {
+  try {
+    const query = (req.query.query as string) || "";
+    const categories = ((req.query.categories as string) || "")
+      .split(",")
+      .filter(Boolean);
+    const sortByPrice = (req.query.sortByPrice as string) || "";
+
+    const searchCriteria: any = {
+      isPublished: true,
+      $or: [
+        { title: { $regex: query, $options: "i" } },
+        { subtitle: { $regex: query, $options: "i" } },
+        { category: { $regex: query, $options: "i" } },
+      ],
+    };
+
+    if (categories.length > 0) {
+      searchCriteria.category = { $in: categories };
+    }
+
+    const sortOptions: any = {};
+    if (sortByPrice === "low") {
+      sortOptions.price = 1;
+    } else if (sortByPrice === "high") {
+      sortOptions.price = -1;
+    }
+
+    const courses = await Course.find(searchCriteria)
+      .populate({ path: "creator", select: "username avatar" })
+      .sort(sortOptions);
+
+    return res.status(200).json({
+      success: true,
+      courses,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to search courses",
+    });
+  }
+};
 export {
   createCourse,
   getCreatorCourse,
@@ -362,4 +406,5 @@ export {
   removeLecture,
   getLectureById,
   getPublishedCourses,
+  searchCourse,
 };

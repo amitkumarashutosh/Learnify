@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <div className="hidden lg:flex flex-col bg-gray-50 w-[250px] sm:w-[300px] border-r border-gray-300 dark:border-gray-700 p-5 h-screen sticky top-0">
+    <div className="hidden lg:flex flex-col bg-gray-50 w-[250px] sm:w-[300px] border-r border-gray-300 dark:bg-gray-900 p-5 h-screen sticky top-0">
       <div className="space-y-2 mt-16">
         <Link
           to="course"
