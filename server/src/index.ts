@@ -23,9 +23,6 @@ app.use("/api/course", courseRouter);
 app.use("/api/purchase", purchaseRouter);
 app.use("/api/progress", courseProgressRouter);
 
-const reactDistPath = path.join(__dirname, "dist");
-app.use(express.static(reactDistPath));
-
 const reactBuildPath = path.join(__dirname, "../client");
 app.use(express.static(reactBuildPath));
 
