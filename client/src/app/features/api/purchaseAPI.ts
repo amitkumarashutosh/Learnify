@@ -1,5 +1,5 @@
 import { api } from "@/lib/axios";
-import { Course, CoursePurchaed, CoursePurchaseType } from "@/types/course";
+import { CoursePurchaed } from "@/types/course";
 
 export const purchaseAPI = {
   createChechoutSession: async (courseId: string) => {

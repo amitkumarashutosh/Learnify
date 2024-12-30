@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 
 const Lecture = ({
   lecture,
-  courseId,
-  title,
   index,
 }: {
   lecture: LectureType;

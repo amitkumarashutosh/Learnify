@@ -63,7 +63,7 @@ const Filter = ({ handleFilterChange }: FilterProps) => {
           >
             <Checkbox
               id={category.id}
-              onCheckedChange={(checked) => handleCategoryChange(category.id)}
+              onCheckedChange={() => handleCategoryChange(category.id)}
             />
             <Label
               htmlFor={category.id} // Link label to the checkbox
