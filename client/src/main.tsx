@@ -12,7 +12,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <ThemeProvider defaultTheme="system">
+        <ThemeProvider defaultTheme="light">
           <App />
         </ThemeProvider>
         <Toaster />

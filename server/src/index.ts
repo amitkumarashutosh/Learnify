@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import path from "path";
 import connectDB from "./db/db";
 import userRouter from "./routes/user.route";
 import courseRouter from "./routes/course.route";
@@ -22,8 +23,14 @@ app.use("/api/course", courseRouter);
 app.use("/api/purchase", purchaseRouter);
 app.use("/api/progress", courseProgressRouter);
 
-app.get("/health", (req: Request, res: Response) => {
-  res.json({ message: "Health OK!" });
+const reactDistPath = path.join(__dirname, "dist");
+app.use(express.static(reactDistPath));
+
+const reactBuildPath = path.join(__dirname, "../client");
+app.use(express.static(reactBuildPath));
+
+app.get("*", (req: Request, res: Response) => {
+  res.sendFile(path.join(reactBuildPath, "index.html"));
 });
 
 connectDB().then(() => {
