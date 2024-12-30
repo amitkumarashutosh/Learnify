@@ -23,6 +23,10 @@ app.use("/api/course", courseRouter);
 app.use("/api/purchase", purchaseRouter);
 app.use("/api/progress", courseProgressRouter);
 
+app.use("/health", (req: Request, res: Response) => {
+  res.send("Health OK!!");
+});
+
 const reactBuildPath = path.join(__dirname, "../client");
 app.use(express.static(reactBuildPath));
 

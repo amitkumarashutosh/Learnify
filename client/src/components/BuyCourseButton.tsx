@@ -29,7 +29,7 @@ const BuyCourseButton = ({ courseId }: { courseId: string }) => {
     >
       {isLoading ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="mr-2 h-4 w-4 animate-spin mx-auto mt-10" />
           Please wait
         </>
       ) : (
