@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { courseAPI } from "@/app/features/api/courseAPI";
 import { Course as CourseType } from "@/types/course";
 import Course from "./Course";
-import { Loader2 } from "lucide-react";
 
 const Courses = () => {
   const [courses, setCourses] = useState<CourseType[]>([]);
@@ -24,10 +23,6 @@ const Courses = () => {
   useEffect(() => {
     fetchCourses();
   }, []);
-
-  if (isLoading) {
-    return <Loader2 className="mx-auto mt-20 animate-spin" />;
-  }
 
   return (
     <div className="bg-gray-50 dark:bg-[#141414]">

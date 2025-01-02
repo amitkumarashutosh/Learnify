@@ -63,7 +63,7 @@ export const PurchasedCourseRoute: React.FC<{ children: React.ReactNode }> = ({
   }
 
   if (isLoading) {
-    return <Loader2 className="animate-spin w-5 h-5 mt-10" />;
+    return <Loader2 className="animate-spin w-5 h-5 mt-10 mx-auto" />;
   }
 
   if (!hasPurchased) {
