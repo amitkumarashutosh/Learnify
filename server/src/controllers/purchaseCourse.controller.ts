@@ -172,7 +172,6 @@ export const getCourseDetailWithPurchaseStatus = async (
     if (!course) {
       return res.status(404).json({ message: "course not found!" });
     }
-    console.log(purchased);
 
     return res.status(200).json({
       success: true,

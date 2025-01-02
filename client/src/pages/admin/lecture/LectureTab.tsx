@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-const MEDIA_API = import.meta.env.VITE_API_URL;
+const MEDIA_API = "https://learnify-wjw3.onrender.com";
 
 interface UploadVideoInfo {
   videoUrl: string;

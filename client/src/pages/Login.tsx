@@ -24,8 +24,8 @@ type TabValue = "login" | "register";
 
 export function Login() {
   const [loginInput, setLoginInput] = useState<LoginInput>({
-    email: "",
-    password: "",
+    email: "user@gmail.com",
+    password: "user",
   });
 
   const [signupInput, setSignupInput] = useState<SignupInput>({
@@ -34,7 +34,7 @@ export function Login() {
     password: "",
   });
   const [loading, setLoading] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<TabValue>("register");
+  const [activeTab, setActiveTab] = useState<TabValue>("login");
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
