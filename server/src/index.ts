@@ -27,7 +27,7 @@ app.use("/health", (req: Request, res: Response) => {
   res.send("Health OK!!");
 });
 
-const reactBuildPath = path.join(__dirname, "../client");
+const reactBuildPath = path.join(__dirname, "../learnify-ui");
 app.use(express.static(reactBuildPath));
 
 app.get("*", (req: Request, res: Response) => {
