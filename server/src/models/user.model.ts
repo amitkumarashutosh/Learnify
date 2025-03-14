@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { IPasskey } from "./passkey.model";
 
 export interface IUser {
   username: string;
@@ -9,9 +10,11 @@ export interface IUser {
   role: "instructor" | "student";
   enrolledCourses?: mongoose.Types.ObjectId[];
   avatar: string;
+  secure: boolean;
+  passkeys?: mongoose.Types.ObjectId[];
 }
 
-interface IUserDocument extends IUser, Document {
+export interface IUserDocument extends IUser, Document {
   createdAt: Date;
   updatedAt: Date;
   comparePassword(password: string): Promise<boolean>;
@@ -40,6 +43,8 @@ const userSchema = new Schema<IUserDocument>(
       default:
         "https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/default-avatar-profile-picture-male-icon.png",
     },
+    secure: { type: Boolean, default: false },
+    passkeys: [{ type: mongoose.Schema.Types.ObjectId, ref: "Passkey" }],
   },
   { timestamps: true }
 );

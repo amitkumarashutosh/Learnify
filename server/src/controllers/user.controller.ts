@@ -64,6 +64,7 @@ const login = async (req: Request, res: Response) => {
       _id: user._id,
       role: user.role,
       enrolledCourses: user.enrolledCourses,
+      secure: user.secure,
       avatar: user.avatar,
     };
 
@@ -126,7 +127,7 @@ const getUserProfile = async (req: AuthRequest, res: Response) => {
 const updateUserProfile = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req._id;
-    const { username } = req.body;
+    const { username, secure } = req.body;
     const avatar = req.file;
 
     const user = await User.findById(userId);
@@ -136,6 +137,11 @@ const updateUserProfile = async (req: AuthRequest, res: Response) => {
         message: "User not found",
       });
     }
+
+    if (secure) user.secure = true;
+    else user.secure = false;
+
+    await user.save();
 
     let cloudResponse = null;
     if (avatar) {
@@ -163,6 +169,7 @@ const updateUserProfile = async (req: AuthRequest, res: Response) => {
         email: updatedUser?.email,
         avatar: updatedUser?.avatar,
         role: updatedUser?.role,
+        secure: updatedUser?.secure,
         enrolledCourses: updatedUser?.enrolledCourses,
         _id: updatedUser?._id,
       },
@@ -174,4 +181,48 @@ const updateUserProfile = async (req: AuthRequest, res: Response) => {
     });
   }
 };
-export { register, login, logout, getUserProfile, updateUserProfile };
+
+const updateTwoFactorAuth = async (req: AuthRequest, res: Response) => {
+  const userId = req._id;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  user.secure = !user.secure;
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    secure: user.secure,
+  });
+};
+
+const getUserSecure = async (req: AuthRequest, res: Response) => {
+  const userId = req._id;
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    secure: user.secure,
+  });
+};
+
+export {
+  register,
+  login,
+  logout,
+  getUserProfile,
+  updateUserProfile,
+  updateTwoFactorAuth,
+  getUserSecure,
+};

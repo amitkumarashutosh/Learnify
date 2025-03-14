@@ -14,6 +14,8 @@ export interface User {
   role: "instructor" | "student";
   enrolledCourses?: string[];
   avatar: string;
+  secure: boolean;
+  passkeys?: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -22,6 +24,12 @@ export interface AuthResponse {
   message: string;
   success: boolean;
   user: User;
+}
+
+export interface TwoFactResponse {
+  message?: string;
+  success: boolean;
+  secure?: boolean;
 }
 
 export interface ProfileUpdateInput {

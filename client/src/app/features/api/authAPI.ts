@@ -4,6 +4,7 @@ import {
   SignupInput,
   AuthResponse,
   ProfileUpdateInput,
+  TwoFactResponse,
 } from "@/types/auth";
 
 export const authAPI = {
@@ -50,6 +51,20 @@ export const authAPI = {
     const response = await api.put<AuthResponse>(
       "/api/user/profile/update",
       userData
+    );
+    return response.data;
+  },
+
+  updateTwoFactorAuth: async () => {
+    const response = await api.put<TwoFactResponse>(
+      "/api/user/profile/two-factor-auth"
+    );
+    return response.data;
+  },
+
+  getUserSecure: async () => {
+    const response = await api.get<TwoFactResponse>(
+      "/api/user/profile/get-secure"
     );
     return response.data;
   },

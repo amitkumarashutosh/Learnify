@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LoginInput, SignupInput } from "../types/auth";
+import { LoginInput, SignupInput, User } from "../types/auth";
 import { authAPI } from "@/app/features/api/authAPI";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -19,13 +19,14 @@ import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { setUser } from "@/app/features/authSlice";
 import axios from "axios";
+import { startAuthentication } from "@simplewebauthn/browser";
 
 type TabValue = "login" | "register";
 
 export function Login() {
   const [loginInput, setLoginInput] = useState<LoginInput>({
-    email: "user@gmail.com",
-    password: "user",
+    email: "",
+    password: "",
   });
 
   const [signupInput, setSignupInput] = useState<SignupInput>({
@@ -34,6 +35,7 @@ export function Login() {
     password: "",
   });
   const [loading, setLoading] = useState<boolean>(false);
+  const [passkeyLoading, setPasskeyLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabValue>("login");
 
   const navigate = useNavigate();
@@ -58,6 +60,53 @@ export function Login() {
     }
   };
 
+  const handleLoginWithPasskey = async ({
+    message,
+    user,
+  }: {
+    message: string;
+    user: User;
+  }) => {
+    try {
+      setPasskeyLoading(true);
+      const data = await fetch("/api/passkey/login-passkey", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const response = await data.json();
+
+      const loginPasskey = await startAuthentication({
+        optionsJSON: response.options,
+      });
+      if (!loginPasskey) {
+        return toast.error("Invalid while login passkey");
+      }
+
+      const verifyPasskeyResponse = await fetch("/api/passkey/verify-passkey", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ credential: loginPasskey }),
+      });
+      const verifyPasskey = await verifyPasskeyResponse.json();
+
+      if (verifyPasskey.success) {
+        toast.success(message);
+        dispatch(setUser(user));
+        navigate("/");
+      } else toast.error(verifyPasskey.message);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to verify passkey");
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
+
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
     type: "login" | "signup"
@@ -67,7 +116,14 @@ export function Login() {
       setLoading(true);
       if (type === "login") {
         const response = await authAPI.login(loginInput);
-        if (response.success === true) {
+        if (response.success) {
+          if (response.user.secure) {
+            return handleLoginWithPasskey({
+              message: response.message,
+              user: response.user,
+            });
+          }
+
           toast.success(response.message);
           dispatch(setUser(response.user));
           navigate("/");
@@ -203,7 +259,7 @@ export function Login() {
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col items-center gap-2">
-                {loading ? (
+                {loading || passkeyLoading ? (
                   <Button disabled className="w-full">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
                     wait...

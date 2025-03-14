@@ -12,6 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+
+import { startRegistration } from "@simplewebauthn/browser";
 import React, { useEffect, useState } from "react";
 import Course from "./Course";
 import { toast } from "sonner";
@@ -23,7 +25,14 @@ import { setUser } from "@/app/features/authSlice";
 
 const Profile = () => {
   const [updateData, setUpdateData] = useState<ProfileUpdateInput>({});
+  const [isSecure, setIsSecure] = useState<boolean>(false);
+  const [isPasskeyExist, setIsPasskeyExist] = useState<boolean>(false);
+
   const [loading, setLoading] = useState<boolean>(false);
+  const [registerPasskeyLoading, setRegisterPasskeyLoading] =
+    useState<boolean>(false);
+  const [securePasskeyLoading, setSecurePasskeyLoading] =
+    useState<boolean>(false);
 
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
@@ -62,13 +71,93 @@ const Profile = () => {
   const fetchUser = async () => {
     try {
       const response = await authAPI.profile();
+      if (response.user?.passkeys && response.user.passkeys.length > 0)
+        setIsPasskeyExist(true);
       if (response.success === true) {
         dispatch(setUser(response.user));
       }
     } catch (error) {}
   };
+
+  const handleRegisterPasskey = async () => {
+    try {
+      setRegisterPasskeyLoading(true);
+      const data = await fetch("/api/passkey/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const response = await data.json();
+
+      if (!response.options) {
+        return toast.error("Invalid response.'options' is missing.");
+      }
+      const registerPasskey = await startRegistration({
+        optionsJSON: response.options,
+      });
+      if (!registerPasskey) {
+        return toast.error("Invalid while register passkey");
+      }
+
+      const verifyPasskey = await fetch("/api/passkey/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ credential: registerPasskey }),
+      });
+
+      if (verifyPasskey) {
+        setIsPasskeyExist(true);
+        return toast.success("Passkey register successfully.");
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.message);
+    } finally {
+      setRegisterPasskeyLoading(false);
+    }
+  };
+
+  const isUserSecure = async () => {
+    try {
+      const response = await authAPI.getUserSecure();
+      if (response.success) {
+        if (response.secure) setIsSecure(response.secure);
+        else setIsSecure(false);
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
+
+  const handleTwoFactorAuth = async () => {
+    try {
+      if (!isPasskeyExist) return toast.success("Register passkey first.");
+
+      setSecurePasskeyLoading(true);
+      const response = await authAPI.updateTwoFactorAuth();
+      if (response.success) {
+        if (response.secure) setIsSecure(response.secure);
+        else setIsSecure(false);
+        toast.success(
+          `Two-Factor Authentication ${isSecure ? "Disabled" : "Enabled"}.`
+        );
+      } else {
+        toast.error("Failed to update Two-Factor Authentication.");
+      }
+    } catch (error) {
+      console.error("Error updating Two-Factor Authentication:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setSecurePasskeyLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchUser();
+    isUserSecure();
   }, []);
 
   return (
@@ -108,6 +197,26 @@ const Profile = () => {
               </span>
             </h1>
           </div>
+          <div>
+            <div className="mt-2 flex items-center gap-4 ">
+              <Label htmlFor="tfa" className="text-md">
+                Two-Factor Auth:
+              </Label>
+              <Button
+                size="sm"
+                className=""
+                onClick={handleTwoFactorAuth}
+                disabled={securePasskeyLoading}
+              >
+                {securePasskeyLoading
+                  ? "Loading..."
+                  : isSecure
+                  ? "Disable"
+                  : "Enable"}
+              </Button>
+            </div>
+          </div>
+
           <Dialog>
             <DialogTrigger asChild>
               <Button size="sm" className="mt-2">
@@ -155,6 +264,15 @@ const Profile = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          <Button
+            disabled={registerPasskeyLoading}
+            size="sm"
+            className="ml-2"
+            onClick={handleRegisterPasskey}
+          >
+            {registerPasskeyLoading ? "Please wait..." : " Register Passkey"}
+          </Button>
         </div>
       </div>
       <div>
