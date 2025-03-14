@@ -9,6 +9,7 @@ import courseRouter from "./routes/course.route";
 import mediaRouter from "./routes/media.route";
 import purchaseRouter from "./routes/purchaseCourse.route";
 import courseProgressRouter from "./routes/courseProgress.route";
+import passkeyRouter from "./routes/passkey.route";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -22,6 +23,7 @@ app.use("/api/user", userRouter);
 app.use("/api/course", courseRouter);
 app.use("/api/purchase", purchaseRouter);
 app.use("/api/progress", courseProgressRouter);
+app.use("/api/passkey", passkeyRouter);
 
 app.use("/health", (req: Request, res: Response) => {
   res.send("Health OK!!");
