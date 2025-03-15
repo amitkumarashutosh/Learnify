@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
-import { User } from "../models/user.model";
+import { IUser, User } from "../models/user.model";
 import { AuthRequest } from "../middlewares/auth";
 import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary";
+import { resend, generateOTP, generateOtpEmailTemplate } from "../utils/resend";
+import { IOTP, OTP } from "../models/otp.model";
 
 const register = async (req: Request, res: Response) => {
   try {
@@ -217,6 +219,76 @@ const getUserSecure = async (req: AuthRequest, res: Response) => {
   });
 };
 
+const sendOTP = async (req: Request, res: Response) => {
+  const { email } = req.body;
+  const otp = generateOTP();
+
+  try {
+    const user: IUser | null = await User.findOne({ email });
+    if (!user)
+      return res.status(400).json({
+        message: "Email does not exist! Please register",
+        success: false,
+      });
+
+    const code: IOTP = await OTP.create({ email, otp });
+    if (!code)
+      return res
+        .status(500)
+        .json({ message: "Error while creating OTP", success: false });
+
+    const resendResponse = await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: email,
+      subject: "🔐 Your Secure OTP Code",
+      html: generateOtpEmailTemplate(otp),
+    });
+
+    if (!resendResponse.data) {
+      return res.json({
+        message: resendResponse.error?.message,
+        success: false,
+      });
+    }
+
+    res.json({ message: "OTP sent successfully!", success: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error sending OTP", success: false });
+  }
+};
+
+const verifyOTP = async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp)
+    return res
+      .status(400)
+      .json({ message: "Email or OTP is required", success: false });
+
+  try {
+    const user: IUser | null = await User.findOne({ email });
+    if (!user)
+      return res.status(400).json({
+        message: "Email does not exist! Please register",
+        success: false,
+      });
+
+    const otpRecord: IOTP | null = await OTP.findOne({ email, otp });
+    if (!otpRecord)
+      return res
+        .status(400)
+        .json({ message: "OTP expired or invalid!", success: false });
+
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    res.json({ message: "OTP verified successfully!", success: true, user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error verifying OTP", success: false });
+  }
+};
+
 export {
   register,
   login,
@@ -225,4 +297,6 @@ export {
   updateUserProfile,
   updateTwoFactorAuth,
   getUserSecure,
+  sendOTP,
+  verifyOTP,
 };

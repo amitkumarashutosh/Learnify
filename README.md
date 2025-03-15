@@ -55,11 +55,12 @@ WEBHOOK_ENDPOINT_SECRET = <your-webhook-endpoint-secret>
 WEBAUTHN_RP_ID = <your-server-id>
 WEBAUTHN_ORIGIN = <your-webauthn-origin>
 WEBAUTHN_RP_NAME = <your-webauthn-rp-name>
+RESEND_API_KEY = <your-resend-api-key>
 ```
 
 3. Install dependencies,run client and server, then view the application at http://localhost:3000
 
 ```bash
 cd client && npm install && npm run build && npm run dev
-cd server && npm install && npm run dev/npm start
+cd server && npm install && npm run build && npm run dev/npm start
 ```
