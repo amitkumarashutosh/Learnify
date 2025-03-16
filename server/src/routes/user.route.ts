@@ -7,6 +7,8 @@ import {
   updateUserProfile,
   getUserSecure,
   updateTwoFactorAuth,
+  sendOTP,
+  verifyOTP,
 } from "../controllers/user.controller";
 import { isAuthenticated } from "../middlewares/auth";
 import upload from "../utils/multer";
@@ -24,5 +26,7 @@ router
 router
   .route("/profile/update")
   .put(isAuthenticated, upload.single("avatar"), updateUserProfile);
+router.route("/send-otp").post(sendOTP);
+router.route("/verify-otp").post(verifyOTP);
 
 export default router;

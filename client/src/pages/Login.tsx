@@ -269,6 +269,12 @@ export function Login() {
                     Login
                   </Button>
                 )}
+                <Button
+                  className="w-full bg-red-500 hover:bg-red-400"
+                  onClick={() => navigate("/otp")}
+                >
+                  Login With OTP
+                </Button>
                 <p className="text-sm">
                   Don't have an account?{" "}
                   <span

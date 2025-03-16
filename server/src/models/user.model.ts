@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { IPasskey } from "./passkey.model";
 
 export interface IUser {
   username: string;
@@ -63,8 +62,8 @@ userSchema.methods.comparePassword = async function (password: string) {
 userSchema.methods.generateToken = async function () {
   return jwt.sign(
     { userId: this._id, username: this.username, role: this.role },
-    process.env.JWT_SECRET as string,
-    { expiresIn: "1d" }
+    process.env.JWT_SECRET as string
+    // { expiresIn: "1d" }
   );
 };
 

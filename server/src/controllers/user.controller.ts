@@ -1,7 +1,14 @@
 import { Request, Response } from "express";
-import { User } from "../models/user.model";
+import { IUser, IUserDocument, User } from "../models/user.model";
 import { AuthRequest } from "../middlewares/auth";
 import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary";
+
+import { IOTP, OTP } from "../models/otp.model";
+import {
+  generateOTP,
+  generateOtpEmailTemplate,
+  transporter,
+} from "../utils/nodemailer";
 
 const register = async (req: Request, res: Response) => {
   try {
@@ -72,7 +79,7 @@ const login = async (req: Request, res: Response) => {
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, //hour min second milisecond = 1 day
+        maxAge: 60 * 24 * 60 * 60 * 1000, //day hour min second milisecond
         sameSite: "strict",
       })
       .json({
@@ -217,6 +224,83 @@ const getUserSecure = async (req: AuthRequest, res: Response) => {
   });
 };
 
+const sendOTP = async (req: Request, res: Response) => {
+  const { email } = req.body;
+  const otp = generateOTP();
+
+  try {
+    const user: IUser | null = await User.findOne({ email });
+    if (!user)
+      return res.status(400).json({
+        message: "Email does not exist! Please register",
+        success: false,
+      });
+
+    const code: IOTP = await OTP.create({ email, otp });
+    if (!code)
+      return res
+        .status(500)
+        .json({ message: "Error while creating OTP", success: false });
+
+    const info = await transporter.sendMail({
+      to: email,
+      subject: "🔐 Your Secure OTP Code",
+      html: generateOtpEmailTemplate(otp),
+    });
+
+    if (info.rejected.length > 0) {
+      await OTP.deleteOne({ _id: code._id });
+      return res
+        .status(500)
+        .json({ message: "Error while sending OTP", success: false });
+    }
+
+    res.json({ message: "OTP sent successfully!", success: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error sending OTP", success: false });
+  }
+};
+
+const verifyOTP = async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp)
+    return res
+      .status(400)
+      .json({ message: "Email or OTP is required", success: false });
+
+  try {
+    const user: IUserDocument | null = await User.findOne({ email });
+    if (!user)
+      return res.status(400).json({
+        message: "Email does not exist! Please register",
+        success: false,
+      });
+
+    const otpRecord: IOTP | null = await OTP.findOne({ email, otp });
+    if (!otpRecord)
+      return res
+        .status(400)
+        .json({ message: "OTP expired or invalid!", success: false });
+
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    const token = await user.generateToken();
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        maxAge: 60 * 24 * 60 * 60 * 1000, //day hour min second milisecond
+        sameSite: "strict",
+      })
+      .json({ message: "OTP verified successfully!", success: true, user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error verifying OTP", success: false });
+  }
+};
+
 export {
   register,
   login,
@@ -225,4 +309,6 @@ export {
   updateUserProfile,
   updateTwoFactorAuth,
   getUserSecure,
+  sendOTP,
+  verifyOTP,
 };
