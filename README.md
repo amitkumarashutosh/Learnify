@@ -52,9 +52,9 @@ PORT = 3000
 STRIPE_PUBLISHABLE_KEY = <your-stripe-publishable-key>
 STRIPE_SECRET_KEY = <your-stripe-secret-key>
 WEBHOOK_ENDPOINT_SECRET = <your-webhook-endpoint-secret>
-WEBAUTHN_RP_ID = <your-server-id>
-WEBAUTHN_ORIGIN = <your-webauthn-origin>
-WEBAUTHN_RP_NAME = <your-webauthn-rp-name>
+RP_ID = <your-server-id>
+ORIGIN = <your-webauthn-origin>
+RP_NAME = <your-webauthn-rp-name>
 NODEMAILER_SECRET_KEY = <your-nodemailer-secret-key>
 ```
 
