@@ -21,6 +21,7 @@ import CourseDetail from "./pages/student/CourseDetail";
 import CourseProgress from "./pages/student/CourseProgress";
 import SearchPage from "./pages/student/SearchPage";
 import LoginWithEmail from "./pages/LoginWithEmail";
+import Passkeys from "./pages/Passkeys";
 
 const App = () => {
   return (
@@ -72,6 +73,17 @@ const App = () => {
             <PrivateRoute>
               <MainLayout>
                 <Profile />
+              </MainLayout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/passkeys"
+          element={
+            <PrivateRoute>
+              <MainLayout>
+                <Passkeys />
               </MainLayout>
             </PrivateRoute>
           }

@@ -15,10 +15,24 @@ import { isoUint8Array } from "@simplewebauthn/server/helpers";
 import { AuthRequest } from "../middlewares/auth";
 import { Response } from "express";
 import { IPasskey, Passkey } from "../models/passkey.model";
+import {
+  generateOtpEmailTemplate,
+  generatePasskeyEmail,
+  transporter,
+} from "../utils/nodemailer";
 
 type UserInfo = IUserDocument | null;
 type ChallengeInfo = IChallenge | null;
 type PasskeyInfo = IPasskey | null;
+
+const aaguidMap: Record<string, string> = {
+  "fbfc3007-154e-4ecc-8c0b-6e020557d7bd": "Macbook",
+  "08987058-cadc-4b81-b6e1-30de50dcbe96": "YubiKey",
+  "1203d68d-37d7-47ea-a9f5-979c11e1ef67": "Windows",
+  "ea9b8d66-4d01-1d21-3ce4-b6b48cb575d4": "Google",
+  "adce0002-35bc-c60a-648b-0b25f1f05503": "Chrome",
+  // Add more mappings from the AAGUID registry
+};
 
 export const registerPasskey = async (req: AuthRequest, res: Response) => {
   try {
@@ -98,8 +112,15 @@ export const verifyPasskey = async (req: AuthRequest, res: Response) => {
     const { id, publicKey, counter, transports } =
       verificationResult.registrationInfo.credential;
 
+    const { aaguid } = verificationResult.registrationInfo;
+    const deviceName = aaguidMap[aaguid] || "Unknown";
+
     const passkey: IPasskey = await Passkey.create({
       userId,
+      deviceInfo: {
+        aaguid,
+        deviceName,
+      },
       credentialID: id,
       publicKey: Buffer.from(publicKey),
       counter: counter,
@@ -117,6 +138,13 @@ export const verifyPasskey = async (req: AuthRequest, res: Response) => {
 
     user.passkeys?.push(passkey.id);
     await user.save();
+
+    //send email if user has registered and verified passkey successfully
+    const info = await transporter.sendMail({
+      to: user.email,
+      subject: "🔐 Passkey Registered Successfully",
+      html: generatePasskeyEmail(user.username),
+    });
 
     res.status(200).json({
       message: "Registration successful",
@@ -230,6 +258,7 @@ export const verifyWithPasskey = async (req: AuthRequest, res: Response) => {
 
     // Update stored counter with the new counter from the authenticator
     passkey.counter = verificationResult.authenticationInfo.newCounter;
+    passkey.updatedAt = new Date();
     await passkey.save();
 
     await Challenge.findOneAndDelete({ userId });
@@ -252,5 +281,56 @@ export const verifyWithPasskey = async (req: AuthRequest, res: Response) => {
     res
       .status(500)
       .json({ success: false, message: "Failed to verify login user passkey" });
+  }
+};
+
+export const getUserPasskeys = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req._id!;
+    const user: UserInfo = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "User not found", success: false });
+    }
+    const passkeys: IPasskey[] = await Passkey.find({ userId });
+    res.status(200).json({ passkeys, success: true });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to get user passkeys" });
+  }
+};
+
+export const deletePasskey = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req._id!;
+    const { passkeyId } = req.body;
+    const user: UserInfo = await User.findById(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "User not found", success: false });
+    }
+
+    const passkey: PasskeyInfo = await Passkey.findById(passkeyId);
+    if (!passkey) {
+      return res
+        .status(404)
+        .json({ message: "Passkey not found", success: false });
+    }
+
+    await Passkey.findByIdAndDelete({ _id: passkeyId });
+
+    res
+      .status(200)
+      .json({ message: "Passkey deleted successfully", success: true });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to delete user passkeys" });
   }
 };

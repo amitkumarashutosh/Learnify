@@ -22,6 +22,7 @@ import { RootState } from "@/app/store";
 import { ProfileUpdateInput } from "@/types/auth";
 import { authAPI } from "@/app/features/api/authAPI";
 import { setUser } from "@/app/features/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const [updateData, setUpdateData] = useState<ProfileUpdateInput>({});
@@ -36,6 +37,7 @@ const Profile = () => {
 
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.type === "file") {
@@ -155,6 +157,13 @@ const Profile = () => {
     }
   };
 
+  const handlePasskeys = () => {
+    if (!isPasskeyExist) {
+      return toast.success("Register passkey first.");
+    }
+    navigate("/passkeys");
+  };
+
   useEffect(() => {
     fetchUser();
     isUserSecure();
@@ -215,6 +224,13 @@ const Profile = () => {
                   : "Enable"}
               </Button>
             </div>
+            <Button
+              variant={"destructive"}
+              className="w-[218px] mt-2"
+              onClick={handlePasskeys}
+            >
+              Manage Passkeys
+            </Button>
           </div>
 
           <Dialog>
