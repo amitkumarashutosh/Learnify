@@ -17,7 +17,8 @@ import { Response } from "express";
 import { IPasskey, Passkey } from "../models/passkey.model";
 import {
   generateOtpEmailTemplate,
-  generatePasskeyEmail,
+  generatePasskeyEmailTemplate,
+  getIpAndLocation,
   transporter,
 } from "../utils/nodemailer";
 
@@ -45,6 +46,12 @@ export const registerPasskey = async (req: AuthRequest, res: Response) => {
     }
 
     const userPasskeys: IPasskey[] = await Passkey.find({ userId });
+    if (userPasskeys.length > 10) {
+      return res.status(400).json({
+        message: "You have reached the maximum number of passkeys",
+        success: false,
+      });
+    }
 
     const options: PublicKeyCredentialCreationOptionsJSON =
       await generateRegistrationOptions({
@@ -139,11 +146,20 @@ export const verifyPasskey = async (req: AuthRequest, res: Response) => {
     user.passkeys?.push(passkey.id);
     await user.save();
 
+    const location = await getIpAndLocation();
+
     //send email if user has registered and verified passkey successfully
     const info = await transporter.sendMail({
       to: user.email,
       subject: "🔐 Passkey Registered Successfully",
-      html: generatePasskeyEmail(user.username),
+      html: generatePasskeyEmailTemplate(
+        user.username,
+        location?.country || "Unknown Country",
+        location?.city || "Unknown City",
+        location?.region || "Unknown Region",
+        location?.isp || "Unknown ISP",
+        location?.ip || "Unknown IP"
+      ),
     });
 
     res.status(200).json({

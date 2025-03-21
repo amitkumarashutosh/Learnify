@@ -18,6 +18,7 @@ const Passkeys = () => {
   const [passkeys, setPasskeys] = useState<IPasskey[] | []>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPasskeyData = async () => {
@@ -43,6 +44,7 @@ const Passkeys = () => {
 
   const handleDeletePasskey = async (passkeyId: string) => {
     try {
+      setDeleteId(passkeyId);
       setDeleteLoading(true);
       const data = await fetch("/api/passkey/delete", {
         method: "DELETE",
@@ -60,6 +62,7 @@ const Passkeys = () => {
       console.log(error);
     } finally {
       setDeleteLoading(false);
+      setDeleteId(null);
     }
   };
 
@@ -94,7 +97,7 @@ const Passkeys = () => {
                 {new Date(passkey.updatedAt).toLocaleString()}
               </TableCell>
               <TableCell className="text-right">
-                {deleteLoading ? (
+                {deleteLoading && passkey._id === deleteId ? (
                   <Button disabled size={"sm"} variant="destructive">
                     <Loader2 className="mr-2 h-1 w-1 animate-spin" />
                     Wait...

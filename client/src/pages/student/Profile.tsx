@@ -92,8 +92,8 @@ const Profile = () => {
       });
       const response = await data.json();
 
-      if (!response.options) {
-        return toast.error("Invalid response.'options' is missing.");
+      if (!response.success) {
+        return toast.error(response.message);
       }
       const registerPasskey = await startRegistration({
         optionsJSON: response.options,
